@@ -1,12 +1,14 @@
-public class Order {
+public class Inventory {
     private int id;
     private String itemCode;
     private int quantity;
+    private double unitPrice;
 
-    public Order(int id, String itemCode, int quantity) {
+    public Inventory(int id, String itemCode, int quantity, double unitPrice) {
         this.id = id;
         this.itemCode = itemCode;
         this.quantity = quantity;
+        this.unitPrice = unitPrice;
     }
 
     public int getId() {
@@ -19,5 +21,13 @@ public class Order {
 
     public int getQuantity() {
         return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public double getUnitPrice() {
+        return unitPrice;
     }
 }
