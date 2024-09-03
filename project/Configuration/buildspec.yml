@@ -13,7 +13,8 @@ phases:
   pre_build:
     commands:
       - echo "Starting Unit tests..."
-      - cd /Rayoo-Nakano/InventoryForJava/project  # ディレクトリ変更コマンド
+      - dir
+      - cd ../Rayoo-Nakano/InventoryForJava/project  # ディレクトリ変更コマンド
       - mvn test # pytest から Maven に変更
       - echo "Unit tests Completed..."
 
