@@ -1,6 +1,6 @@
-import inventory.Inventory;
-import inventory.Order;
-import inventory.InventoryAllocation;
+import Inventory;
+import Order;
+import InventoryAllocation;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
