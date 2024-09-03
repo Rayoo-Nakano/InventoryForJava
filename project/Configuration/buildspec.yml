@@ -20,8 +20,8 @@ phases:
 
   build:
     commands:
-      - ls Backend
-      - ls Backend/src
+      - ls project
+      - ls project/src
       - ls configuration
       - mvn package # zip コマンドから Maven に変更
 

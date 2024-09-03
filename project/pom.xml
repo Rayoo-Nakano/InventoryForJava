@@ -24,6 +24,7 @@
     </dependencies>
 
     <build>
+        <testSourceDirectory>project/src/test/java</testSourceDirectory>
         <plugins>
             <!-- Maven Compiler Plugin -->
             <plugin>
