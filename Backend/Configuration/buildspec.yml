@@ -3,17 +3,17 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.8
+      java: openjdk11 # Python 3.8 から OpenJDK 11 に変更
     commands:
-      - pip install awscli
+      - pip install awscli # AWS CLIのインストールは不要
       - CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain rayoo-domain --domain-owner 047403811176 --query authorizationToken --output text)
-      - CODEARTIFACT_REPOSITORY_URL=$(aws codeartifact get-repository-endpoint --domain rayoo-domain --repository ${CODEARTIFACT_REPOSITORY_NAME} --format pypi --output text)
-      - pip install -r ./configuration/requirements.txt --quiet
+      - CODEARTIFACT_REPOSITORY_URL=$(aws codeartifact get-repository-endpoint --domain rayoo-domain --repository ${CODEARTIFACT_REPOSITORY_NAME} --format maven --output text) # pypi から maven に変更
+      - echo "Maven dependencies will be downloaded during the build phase" # requirements.txt は不要
 
   pre_build:
     commands:
       - echo "Starting Unit tests..."
-      - pytest Backend/tests/UT_src  # ユニットテストの実行
+      - mvn test # pytest から Maven に変更
       - echo "Unit tests Completed..."
 
   build:
@@ -21,34 +21,34 @@ phases:
       - ls Backend
       - ls Backend/src
       - ls configuration
-      - zip -r ${ProjectName}.zip ./Backend/src  # Lambdaファンクションのソースコードをzipファイルにパッケージ化
+      - mvn package # zip コマンドから Maven に変更
 
   post_build:
     commands:
-      - aws lambda update-function-code --function-name ${ProjectName} --zip-file fileb://${ProjectName}.zip  # Lambdaファンクションのコードを更新
-      - aws s3 cp configuration/buildspec.yml s3://${ProjectName}/configuration/  # buildspec.ymlをS3にコピー
-      - aws s3 cp configuration/requirements.txt s3://${ProjectName}/configuration/  # requirements.txtをS3にコピー
+      - aws lambda update-function-code --function-name ${ProjectName} --zip-file fileb://target/${ProjectName}.zip # ビルド成果物のパスを変更
+      - aws s3 cp configuration/buildspec.yml s3://${ProjectName}/configuration/
+      - aws s3 cp configuration/pom.xml s3://${ProjectName}/configuration/ # requirements.txt を pom.xml に変更
       - echo "Starting appspec.yml create process..."
-      - ALIAS=$(aws lambda list-aliases --function-name ${ProjectName} --query 'Aliases[?FunctionVersion!=`$LATEST`].Name' --output text)  # 現在のエイリアス名を取得
-      - CURRENT_VERSION=$(aws lambda get-alias --function-name ${ProjectName} --name $ALIAS --query 'FunctionVersion' --output text)  # 現在のバージョンを取得
-      - TARGET_VERSION=$(aws lambda publish-version --function-name ${ProjectName} --description "New version" --query 'Version' --output text)  # 新しいバージョンを公開
-      - sed -i "s/{{Name}}/${ProjectName}/g"              configuration/appspec.yml  # appspec.ymlのプレースホルダーを置換
+      - ALIAS=$(aws lambda list-aliases --function-name ${ProjectName} --query 'Aliases[?FunctionVersion!=`$LATEST`].Name' --output text)
+      - CURRENT_VERSION=$(aws lambda get-alias --function-name ${ProjectName} --name $ALIAS --query 'FunctionVersion' --output text)
+      - TARGET_VERSION=$(aws lambda publish-version --function-name ${ProjectName} --description "New version" --query 'Version' --output text)
+      - sed -i "s/{{Name}}/${ProjectName}/g"              configuration/appspec.yml
       - sed -i "s/{{Alias}}/$ALIAS/g"                     configuration/appspec.yml
       - sed -i "s/{{CurrentVersion}}/$CURRENT_VERSION/g"  configuration/appspec.yml
       - sed -i "s/{{TargetVersion}}/$TARGET_VERSION/g"    configuration/appspec.yml
-      - cat configuration/appspec.yml  # appspec.ymlの内容を表示
-      - cp  configuration/appspec.yml .  # appspec.ymlをカレントディレクトリにコピー
+      - cat configuration/appspec.yml
+      - cp  configuration/appspec.yml .
       - ls
-      - aws s3 cp configuration/appspec.yml s3://${ProjectName}/configuration/  # appspec.ymlをS3にコピー
+      - aws s3 cp configuration/appspec.yml s3://${ProjectName}/configuration/
 
 reports:
-  pytest_reports:
+  maven_reports: # pytest_reports から maven_reports に変更
     files:
-      - "pytest-report.xml"  # pytestレポートファイル
-    file-format: "JUNITXML"  # レポートのファイル形式
+      - "target/surefire-reports/*" # Maven のテストレポートのパス
+    file-format: "JUNITXML"
 
 artifacts:
   files:
-    - ${ProjectName}.zip  # ビルド成果物（Lambdaファンクションのzipファイル）
-    - appspec.yml  # CodeDeployで使用するappspec.ymlファイル
-  name: BuildOutput  # ビルド成果物の名前
+    - target/${ProjectName}.zip # ビルド成果物のパスを変更
+    - appspec.yml
+  name: BuildOutput
