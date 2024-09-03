@@ -1,0 +1,15 @@
+version: 0.0
+Resources:
+  - InventoryAllocationTest1:
+      Type: AWS::Lambda::Function
+      Properties:
+        Name: "{{Name}}"
+        Alias: "{{Alias}}"
+        CurrentVersion: "{{CurrentVersion}}"
+        TargetVersion: "{{TargetVersion}}"
+
+# Lambda起動前後の確認関数を入れていないので、コメントアウト
+# Hooks:
+#  - BeforeAllowTraffic: "LambdaFunctionToValidateBeforeTrafficShift"
+#  - AfterAllowTraffic: "LambdaFunctionToValidateAfterTrafficShift"
+
