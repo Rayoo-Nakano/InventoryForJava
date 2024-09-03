@@ -1,69 +1,248 @@
-以下は、単体試験仕様に投入データの定義を含めた内容です。
+了解しました。InventoryAllocation.javaの単体試験仕様書をカバー率95%以上で作成します。実際に利用すべき試験データも記載し、フォーマットはMarkdown形式で作成します。
 
-**単体試験仕様**
+# InventoryAllocation 単体試験仕様書
 
-1. `allocateInventory`メソッド:
-   - 正常な注文と在庫データに対する各割り当て戦略の動作確認
-     - 投入データ:
-       - 注文: `Order(id=1, itemCode="ITEM001", quantity=5, allocated=false)`
-       - 在庫: `[Inventory(id=1, itemCode="ITEM001", quantity=3, unitPrice=5.0), Inventory(id=2, itemCode="ITEM001", quantity=2, unitPrice=5.0)]`
-   - 未知の割り当て戦略が指定された場合の例外処理確認
-     - 投入データ: 割り当て戦略 = "UNKNOWN"
+## 1. allocateInventory メソッド
 
-2. `allocateFifo`メソッド:
-   - 在庫が十分な場合の割り当て
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=3)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=5, unitPrice=10.0)]`
-   - 在庫が不足している場合の部分割り当て
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=8)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=5, unitPrice=10.0)]`
-   - 在庫がない場合の動作確認
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=3)`, 在庫 `[]`
+### 1.1 正常系
 
-3. `allocateLifo`メソッド:
-   - 在庫が十分な場合の割り当て
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=3)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=5, unitPrice=10.0)]`
-   - 在庫が不足している場合の部分割り当て
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=8)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=5, unitPrice=10.0)]`
-   - 在庫がない場合の動作確認
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=3)`, 在庫 `[]`
+#### 1.1.1 FIFO戦略
 
-4. `allocateAverage`メソッド:
-   - 在庫が十分な場合の割り当て
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=5)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=3, unitPrice=5.0), Inventory(id=2, itemCode="ITEM001", quantity=2, unitPrice=10.0)]`
-   - 在庫が不足している場合の部分割り当て
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=8)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=3, unitPrice=5.0), Inventory(id=2, itemCode="ITEM001", quantity=2, unitPrice=10.0)]`
-   - 在庫がない場合の動作確認
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=3)`, 在庫 `[]`
-   - 平均価格の計算確認
-     - 投入データ: 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=3, unitPrice=5.0), Inventory(id=2, itemCode="ITEM001", quantity=2, unitPrice=10.0)]`
+**テストケース**
 
-5. `allocateSpecific`メソッド:
-   - 在庫が十分な場合の割り当て
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=3)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=5, unitPrice=10.0)]`
-   - 在庫が不足している場合の動作確認
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=8)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=5, unitPrice=10.0)]`
+- 在庫情報
+  - 商品コード: A001, 数量: 10, 単価: 100.0
+  - 商品コード: A001, 数量: 5, 単価: 120.0
+  - 商品コード: A001, 数量: 8, 単価: 110.0
+- 注文情報
+  - 商品コード: A001, 数量: 15
 
-6. `allocateTotalAverage`メソッド:
-   - 在庫が十分な場合の割り当て
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=5)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=3, unitPrice=5.0), Inventory(id=2, itemCode="ITEM001", quantity=2, unitPrice=10.0)]`
-   - 在庫が不足している場合の部分割り当て
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=8)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=3, unitPrice=5.0), Inventory(id=2, itemCode="ITEM001", quantity=2, unitPrice=10.0)]`
-   - 在庫がない場合の動作確認
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=3)`, 在庫 `[]`
-   - 総平均価格の計算確認
-     - 投入データ: 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=3, unitPrice=5.0), Inventory(id=2, itemCode="ITEM001", quantity=2, unitPrice=10.0)]`
+**期待する結果**
 
-7. `allocateMovingAverage`メソッド:
-   - 在庫が十分な場合の割り当て
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=5)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=3, unitPrice=5.0), Inventory(id=2, itemCode="ITEM001", quantity=2, unitPrice=10.0), Inventory(id=3, itemCode="ITEM001", quantity=2, unitPrice=8.0)]`
-   - 在庫が不足している場合の部分割り当て
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=8)`, 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=3, unitPrice=5.0), Inventory(id=2, itemCode="ITEM001", quantity=2, unitPrice=10.0), Inventory(id=3, itemCode="ITEM001", quantity=2, unitPrice=8.0)]`
-   - 在庫がない場合の動作確認
-     - 投入データ: 注文 `Order(id=1, itemCode="ITEM001", quantity=3)`, 在庫 `[]`
-   - 移動平均価格の計算確認
-     - 投入データ: 在庫 `[Inventory(id=1, itemCode="ITEM001", quantity=3, unitPrice=5.0), Inventory(id=2, itemCode="ITEM001", quantity=2, unitPrice=10.0), Inventory(id=3, itemCode="ITEM001", quantity=2, unitPrice=8.0)]`
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
 
-8. `calculateMovingAverage`メソッド:
-   - 移動平均価格の計算確認
-     - 投入データ: `[5.0, 10.0, 8.0]`
+#### 1.1.2 LIFO戦略
 
-この仕様書には、各テストケースで使用される投入データが明記されています。これにより、テストの実行時に適切な入力値を使用できるようになります。
+**テストケース**
+
+- 在庫情報
+  - 商品コード: B001, 数量: 15, 単価: 80.0
+  - 商品コード: B001, 数量: 20, 単価: 90.0
+- 注文情報
+  - 商品コード: B001, 数量: 25
+
+**期待する結果**
+
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
+
+#### 1.1.3 平均単価戦略
+
+**テストケース**
+
+- 在庫情報
+  - 商品コード: C001, 数量: 10, 単価: 200.0
+  - 商品コード: C001, 数量: 20, 単価: 150.0
+  - 商品コード: C001, 数量: 15, 単価: 180.0
+- 注文情報
+  - 商品コード: C001, 数量: 30
+
+**期待する結果**
+
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
+- 合計金額が正しく計算される
+
+#### 1.1.4 特定在庫戦略
+
+**テストケース**
+
+- 在庫情報
+  - 商品コード: D001, 数量: 5, 単価: 100.0
+  - 商品コード: D001, 数量: 20, 単価: 120.0
+  - 商品コード: D001, 数量: 10, 単価: 110.0
+- 注文情報
+  - 商品コード: D001, 数量: 15
+
+**期待する結果**
+
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
+- 最大の在庫から割り当てられる
+
+#### 1.1.5 総平均単価戦略
+
+**テストケース**
+
+- 在庫情報
+  - 商品コード: E001, 数量: 10, 単価: 200.0
+  - 商品コード: E001, 数量: 20, 単価: 150.0
+  - 商品コード: E001, 数量: 15, 単価: 180.0
+- 注文情報
+  - 商品コード: E001, 数量: 30
+
+**期待する結果**
+
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
+- 合計金額が正しく計算される
+
+#### 1.1.6 移動平均単価戦略
+
+**テストケース**
+
+- 在庫情報
+  - 商品コード: F001, 数量: 10, 単価: 200.0
+  - 商品コード: F001, 数量: 20, 単価: 150.0
+  - 商品コード: F001, 数量: 15, 単価: 180.0
+  - 商品コード: F001, 数量: 5, 単価: 250.0
+- 注文情報
+  - 商品コード: F001, 数量: 40
+
+**期待する結果**
+
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
+- 合計金額が正しく計算される
+
+### 1.2 異常系
+
+#### 1.2.1 無効な割り当て戦略
+
+**テストケース**
+
+- 割り当て戦略: INVALID
+
+**期待する結果**
+
+- IllegalArgumentExceptionが発生する
+- 適切なログが出力される
+
+## 2. その他のメソッド
+
+### 2.1 allocateFifo メソッド
+
+**テストケース**
+
+- 在庫情報
+  - 商品コード: A001, 数量: 10, 単価: 100.0
+  - 商品コード: A001, 数量: 5, 単価: 120.0
+  - 商品コード: A001, 数量: 8, 単価: 110.0
+- 注文情報
+  - 商品コード: A001, 数量: 15
+
+**期待する結果**
+
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
+
+### 2.2 allocateLifo メソッド
+
+**テストケース**
+
+- 在庫情報
+  - 商品コード: B001, 数量: 15, 単価: 80.0
+  - 商品コード: B001, 数量: 20, 単価: 90.0
+- 注文情報
+  - 商品コード: B001, 数量: 25
+
+**期待する結果**
+
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
+
+### 2.3 allocateAverage メソッド
+
+**テストケース**
+
+- 在庫情報
+  - 商品コード: C001, 数量: 10, 単価: 200.0
+  - 商品コード: C001, 数量: 20, 単価: 150.0
+  - 商品コード: C001, 数量: 15, 単価: 180.0
+- 注文情報
+  - 商品コード: C001, 数量: 30
+
+**期待する結果**
+
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
+- 合計金額が正しく計算される
+
+### 2.4 allocateSpecific メソッド
+
+**テストケース**
+
+- 在庫情報
+  - 商品コード: D001, 数量: 5, 単価: 100.0
+  - 商品コード: D001, 数量: 20, 単価: 120.0
+  - 商品コード: D001, 数量: 10, 単価: 110.0
+- 注文情報
+  - 商品コード: D001, 数量: 15
+
+**期待する結果**
+
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
+- 最大の在庫から割り当てられる
+
+### 2.5 allocateTotalAverage メソッド
+
+**テストケース**
+
+- 在庫情報
+  - 商品コード: E001, 数量: 10, 単価: 200.0
+  - 商品コード: E001, 数量: 20, 単価: 150.0
+  - 商品コード: E001, 数量: 15, 単価: 180.0
+- 注文情報
+  - 商品コード: E001, 数量: 30
+
+**期待する結果**
+
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
+- 合計金額が正しく計算される
+
+### 2.6 allocateMovingAverage メソッド
+
+**テストケース**
+
+- 在庫情報
+  - 商品コード: F001, 数量: 10, 単価: 200.0
+  - 商品コード: F001, 数量: 20, 単価: 150.0
+  - 商品コード: F001, 数量: 15, 単価: 180.0
+  - 商品コード: F001, 数量: 5, 単価: 250.0
+- 注文情報
+  - 商品コード: F001, 数量: 40
+
+**期待する結果**
+
+- 在庫が適切に割り当てられる
+- ログが適切に出力される
+- 合計金額が正しく計算される
+
+### 2.7 calculateMovingAverage メソッド
+
+**テストケース**
+
+- 入力: [200.0, 150.0, 180.0]
+
+**期待する結果**
+
+- 移動平均単価が正しく計算される (176.67)
+
+### 2.8 getInventoriesByItemCode メソッド
+
+**テストケース**
+
+- 在庫情報
+  - 商品コード: A001, 数量: 10, 単価: 100.0
+  - 商品コード: B001, 数量: 15, 単価: 80.0
+  - 商品コード: A001, 数量: 5, 単価: 120.0
+- 商品コード: A001
+
+**期待する結果**
+
+- 商品コードA001の在庫情報のみが返される
+
+以上が、InventoryAllocation.javaの単体試験仕様書です。カバー率95%以上を目標に、各メソッドの正常系と異常系のテストケースを記載しました。実際に利用すべき試験データも含まれています。
