@@ -9,7 +9,7 @@ import java.util.logging.Logger;
  * 割り当て戦略としてFIFO、LIFO、平均単価、特定在庫、総平均単価、移動平均単価の6種類をサポートする。
  */
 public class InventoryAllocation {
-    private static final Logger logger = Logger.getLogger(InventoryAllocation.class.getName());
+    public static final Logger logger = Logger.getLogger(InventoryAllocation.class.getName());
 
     public static void main(String[] args) {
         // 在庫情報を作成
@@ -42,7 +42,7 @@ public class InventoryAllocation {
      * @param orders      注文情報のリスト
      * @param strategy    割り当て戦略
      */
-    private static void allocateInventory(List<Inventory> inventories, List<Order> orders, String strategy) {
+    public static void allocateInventory(List<Inventory> inventories, List<Order> orders, String strategy) {
         logger.info("在庫割り当てを開始します。戦略: " + strategy);
 
         for (Order order : orders) {
@@ -87,7 +87,7 @@ public class InventoryAllocation {
      * @param order          注文情報
      * @param itemInventories 商品コードに一致する在庫情報のリスト
      */
-    private static void allocateFifo(Order order, List<Inventory> itemInventories) {
+    public static void allocateFifo(Order order, List<Inventory> itemInventories) {
         int remainingQuantity = order.getQuantity();
         for (Inventory inventory : itemInventories) {
             if (remainingQuantity <= 0) {
@@ -106,7 +106,7 @@ public class InventoryAllocation {
      * @param order          注文情報
      * @param itemInventories 商品コードに一致する在庫情報のリスト
      */
-    private static void allocateLifo(Order order, List<Inventory> itemInventories) {
+    public static void allocateLifo(Order order, List<Inventory> itemInventories) {
         int remainingQuantity = order.getQuantity();
         for (int i = itemInventories.size() - 1; i >= 0; i--) {
             Inventory inventory = itemInventories.get(i);
@@ -126,7 +126,7 @@ public class InventoryAllocation {
      * @param order          注文情報
      * @param itemInventories 商品コードに一致する在庫情報のリスト
      */
-    private static void allocateAverage(Order order, List<Inventory> itemInventories) {
+    public static void allocateAverage(Order order, List<Inventory> itemInventories) {
         int totalQuantity = itemInventories.stream().mapToInt(Inventory::getQuantity).sum();
         double totalPrice = itemInventories.stream().mapToDouble(inv -> inv.getQuantity() * inv.getUnitPrice()).sum();
         double averagePrice = totalQuantity > 0 ? totalPrice / totalQuantity : 0;
@@ -154,7 +154,7 @@ public class InventoryAllocation {
      * @param order          注文情報
      * @param itemInventories 商品コードに一致する在庫情報のリスト
      */
-    private static void allocateSpecific(Order order, List<Inventory> itemInventories) {
+    public static void allocateSpecific(Order order, List<Inventory> itemInventories) {
         for (Inventory inventory : itemInventories) {
             if (inventory.getQuantity() >= order.getQuantity()) {
                 int allocatedQuantity = order.getQuantity();
@@ -171,7 +171,7 @@ public class InventoryAllocation {
      * @param order          注文情報
      * @param itemInventories 商品コードに一致する在庫情報のリスト
      */
-    private static void allocateTotalAverage(Order order, List<Inventory> itemInventories) {
+    public static void allocateTotalAverage(Order order, List<Inventory> itemInventories) {
         int totalQuantity = itemInventories.stream().mapToInt(Inventory::getQuantity).sum();
         double totalPrice = itemInventories.stream().mapToDouble(inv -> inv.getQuantity() * inv.getUnitPrice()).sum();
         double totalAveragePrice = totalQuantity > 0 ? totalPrice / totalQuantity : 0;
@@ -197,7 +197,7 @@ public class InventoryAllocation {
      * @param order          注文情報
      * @param itemInventories 商品コードに一致する在庫情報のリスト
      */
-    private static void allocateMovingAverage(Order order, List<Inventory> itemInventories) {
+    public static void allocateMovingAverage(Order order, List<Inventory> itemInventories) {
         int windowSize = 3;
         double[] prices = new double[windowSize];
         int priceIndex = 0;
@@ -225,7 +225,7 @@ public class InventoryAllocation {
      * @param prices 直近の単価履歴
      * @return 移動平均単価
      */
-    private static double calculateMovingAverage(double[] prices) {
+    public static double calculateMovingAverage(double[] prices) {
         double sum = 0;
         int count = 0;
         for (double price : prices) {
@@ -244,7 +244,7 @@ public class InventoryAllocation {
      * @param itemCode    商品コード
      * @return 商品コードに一致する在庫情報のリスト
      */
-    private static List<Inventory> getInventoriesByItemCode(List<Inventory> inventories, String itemCode) {
+    public static List<Inventory> getInventoriesByItemCode(List<Inventory> inventories, String itemCode) {
         List<Inventory> itemInventories = new ArrayList<>();
         for (Inventory inventory : inventories) {
             if (inventory.getItemCode().equals(itemCode)) {
