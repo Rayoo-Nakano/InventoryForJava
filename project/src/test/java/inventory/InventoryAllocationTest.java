@@ -1,3 +1,5 @@
+package inventory;
+
 import inventory.Inventory;
 import inventory.Order;
 import inventory.InventoryAllocation;
