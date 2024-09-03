@@ -202,7 +202,7 @@ public class InventoryAllocation {
     }
 }
 
-class Inventory {
+public class Inventory {
     private int id;
     private String itemCode;
     private int quantity;
@@ -236,7 +236,7 @@ class Inventory {
     }
 }
 
-class Order {
+public class Order {
     private int id;
     private String itemCode;
     private int quantity;
