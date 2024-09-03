@@ -1,3 +1,5 @@
+package inventory;
+
 public class Inventory {
     private int id;
     private String itemCode;
