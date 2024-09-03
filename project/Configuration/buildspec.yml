@@ -20,9 +20,8 @@ phases:
 
   build:
     commands:
-      - ls project
-      - ls project/src
-      - ls configuration
+      - dir project/src/main/java
+      - dir configuration
       - mvn package # zip コマンドから Maven に変更
 
   post_build:

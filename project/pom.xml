@@ -11,10 +11,8 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <!-- ログ出力を抑制するための設定を追加 -->
-        <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
-        <maven.main.skip>true</maven.main.skip>
-        <maven.test.skip>true</maven.test.skip>
+        <!-- ユニットテストのログをコンソールに出力するための設定 -->
+        <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
     </properties>
 
     <dependencies>
@@ -30,6 +28,7 @@
     <build>
         <pluginManagement>
             <plugins>
+                <!-- Downloadのログを抑止するための設定 -->
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.3.0</version>
@@ -54,9 +53,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M9</version>
-                <!-- ログ出力を抑制するための設定を追加 -->
                 <configuration>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <!-- ユニットテストのログをコンソールに出力するための設定 -->
+                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
                 </configuration>
             </plugin>
         </plugins>
