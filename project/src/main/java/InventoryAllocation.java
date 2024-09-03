@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * 在庫引当プログラム
@@ -81,13 +82,7 @@ public class InventoryAllocation {
         logger.info("在庫割り当てが完了しました。");
     }
 
-    /**
-     * FIFOで在庫を割り当てる
-     *
-     * @param order          注文情報
-     * @param itemInventories 商品コードに一致する在庫情報のリスト
-     */
-    public static void allocateFifo(Order order, List<Inventory> itemInventories) {
+    private static void allocateFifo(Order order, List<Inventory> itemInventories) {
         int remainingQuantity = order.getQuantity();
         for (Inventory inventory : itemInventories) {
             if (remainingQuantity <= 0) {
@@ -100,13 +95,7 @@ public class InventoryAllocation {
         }
     }
 
-    /**
-     * LIFOで在庫を割り当てる
-     *
-     * @param order          注文情報
-     * @param itemInventories 商品コードに一致する在庫情報のリスト
-     */
-    public static void allocateLifo(Order order, List<Inventory> itemInventories) {
+    private static void allocateLifo(Order order, List<Inventory> itemInventories) {
         int remainingQuantity = order.getQuantity();
         for (int i = itemInventories.size() - 1; i >= 0; i--) {
             Inventory inventory = itemInventories.get(i);
@@ -120,20 +109,27 @@ public class InventoryAllocation {
         }
     }
 
-    /**
-     * 平均単価で在庫を割り当てる
-     *
-     * @param order          注文情報
-     * @param itemInventories 商品コードに一致する在庫情報のリスト
-     */
-    public static void allocateAverage(Order order, List<Inventory> itemInventories) {
-        int totalQuantity = itemInventories.stream().mapToInt(Inventory::getQuantity).sum();
-        double totalPrice = itemInventories.stream().mapToDouble(inv -> inv.getQuantity() * inv.getUnitPrice()).sum();
-        double averagePrice = totalQuantity > 0 ? totalPrice / totalQuantity : 0;
-        logger.info("平均単価: " + averagePrice);
-
+    private static void allocateAverage(Order order, List<Inventory> itemInventories) {
         int remainingQuantity = order.getQuantity();
-        double totalAllocatedPrice = 0;
+        double totalCost = 0.0;
+        int totalAllocatedQuantity = 0;
+        for (Inventory inventory : itemInventories) {
+            if (remainingQuantity <= 0) {
+                break;
+            }
+            int allocatedQuantity = Math.min(remainingQuantity, inventory.getQuantity());
+            remainingQuantity -= allocatedQuantity;
+            totalCost += allocatedQuantity * inventory.getUnitPrice();
+            totalAllocatedQuantity += allocatedQuantity;
+            inventory.setQuantity(inventory.getQuantity() - allocatedQuantity);
+            logger.info(String.format("注文 %d に在庫 %d (商品コード: %s, 数量: %d, 単価: %.2f) を割り当てました。", order.getId(), inventory.getId(), inventory.getItemCode(), allocatedQuantity, inventory.getUnitPrice()));
+        }
+        double averagePrice = totalCost / totalAllocatedQuantity;
+        logger.info(String.format("注文 %d の平均単価は %.2f です。", order.getId(), averagePrice));
+    }
+
+    private static void allocateSpecific(Order order, List<Inventory> itemInventories) {
+        int remainingQuantity = order.getQuantity();
         for (Inventory inventory : itemInventories) {
             if (remainingQuantity <= 0) {
                 break;
@@ -141,43 +137,38 @@ public class InventoryAllocation {
             int allocatedQuantity = Math.min(remainingQuantity, inventory.getQuantity());
             remainingQuantity -= allocatedQuantity;
             inventory.setQuantity(inventory.getQuantity() - allocatedQuantity);
-            totalAllocatedPrice += allocatedQuantity * averagePrice;
+            logger.info(String.format("注文 %d に在庫 %d (商品コード: %s, 数量: %d, 単価: %.2f) を割り当てました。", order.getId(), inventory.getId(), inventory.getItemCode(), allocatedQuantity, inventory.getUnitPrice()));
+        }
+    }
+
+    private static void allocateTotalAverage(Order order, List<Inventory> itemInventories) {
+        int remainingQuantity = order.getQuantity();
+        double totalCost = 0.0;
+        int totalQuantity = 0;
+        for (Inventory inventory : itemInventories) {
+            totalCost += inventory.getQuantity() * inventory.getUnitPrice();
+            totalQuantity += inventory.getQuantity();
+        }
+        double averagePrice = totalCost / totalQuantity;
+        for (Inventory inventory : itemInventories) {
+            if (remainingQuantity <= 0) {
+                break;
+            }
+            int allocatedQuantity = Math.min(remainingQuantity, inventory.getQuantity());
+            remainingQuantity -= allocatedQuantity;
+            inventory.setQuantity(inventory.getQuantity() - allocatedQuantity);
             logger.info(String.format("注文 %d に在庫 %d (商品コード: %s, 数量: %d, 単価: %.2f) を割り当てました。", order.getId(), inventory.getId(), inventory.getItemCode(), allocatedQuantity, averagePrice));
         }
-
-        logger.info(String.format("注文 %d の合計金額: %.2f", order.getId(), totalAllocatedPrice));
     }
 
-    /**
-     * 特定の在庫を優先して割り当てる
-     *
-     * @param order          注文情報
-     * @param itemInventories 商品コードに一致する在庫情報のリスト
-     */
-    public static void allocateSpecific(Order order, List<Inventory> itemInventories) {
-        for (Inventory inventory : itemInventories) {
-            if (inventory.getQuantity() >= order.getQuantity()) {
-                int allocatedQuantity = order.getQuantity();
-                inventory.setQuantity(inventory.getQuantity() - allocatedQuantity);
-                logger.info(String.format("注文 %d に在庫 %d (商品コード: %s, 数量: %d, 単価: %.2f) を割り当てました。", order.getId(), inventory.getId(), inventory.getItemCode(), allocatedQuantity, inventory.getUnitPrice()));
-                break;
-            }
-        }
-    }
-
-    /**
-     * 総平均単価で在庫を割り当てる
-     *
-     * @param order          注文情報
-     * @param itemInventories 商品コードに一致する在庫情報のリスト
-     */
-    public static void allocateTotalAverage(Order order, List<Inventory> itemInventories) {
-        int totalQuantity = itemInventories.stream().mapToInt(Inventory::getQuantity).sum();
-        double totalPrice = itemInventories.stream().mapToDouble(inv -> inv.getQuantity() * inv.getUnitPrice()).sum();
-        double totalAveragePrice = totalQuantity > 0 ? totalPrice / totalQuantity : 0;
-        logger.info("総平均単価: " + totalAveragePrice);
-
+    private static void allocateMovingAverage(Order order, List<Inventory> itemInventories) {
         int remainingQuantity = order.getQuantity();
+        double[] prices = new double[itemInventories.size()];
+        int index = 0;
+        for (Inventory inventory : itemInventories) {
+            prices[index++] = inventory.getUnitPrice();
+        }
+        double movingAverage = calculateMovingAverage(prices);
         for (Inventory inventory : itemInventories) {
             if (remainingQuantity <= 0) {
                 break;
@@ -185,56 +176,16 @@ public class InventoryAllocation {
             int allocatedQuantity = Math.min(remainingQuantity, inventory.getQuantity());
             remainingQuantity -= allocatedQuantity;
             inventory.setQuantity(inventory.getQuantity() - allocatedQuantity);
-            logger.info(String.format("注文 %d に在庫 %d (商品コード: %s, 数量: %d, 単価: %.2f) を割り当てました。", order.getId(), inventory.getId(), inventory.getItemCode(), allocatedQuantity, totalAveragePrice));
+            logger.info(String.format("注文 %d に在庫 %d (商品コード: %s, 数量: %d, 単価: %.2f) を割り当てました。", order.getId(), inventory.getId(), inventory.getItemCode(), allocatedQuantity, movingAverage));
         }
-
-        logger.info(String.format("注文 %d の合計金額: %.2f", order.getId(), order.getQuantity() * totalAveragePrice));
     }
 
-    /**
-     * 移動平均単価で在庫を割り当てる
-     *
-     * @param order          注文情報
-     * @param itemInventories 商品コードに一致する在庫情報のリスト
-     */
-    public static void allocateMovingAverage(Order order, List<Inventory> itemInventories) {
-        int windowSize = 3;
-        double[] prices = new double[windowSize];
-        int priceIndex = 0;
-        int remainingQuantity = order.getQuantity();
-        for (Inventory inventory : itemInventories) {
-            if (remainingQuantity <= 0) {
-                break;
-            }
-            int allocatedQuantity = Math.min(remainingQuantity, inventory.getQuantity());
-            remainingQuantity -= allocatedQuantity;
-            inventory.setQuantity(inventory.getQuantity() - allocatedQuantity);
-            prices[priceIndex] = inventory.getUnitPrice();
-            priceIndex = (priceIndex + 1) % windowSize;
-            double movingAveragePrice = calculateMovingAverage(prices);
-            logger.info(String.format("注文 %d に在庫 %d (商品コード: %s, 数量: %d, 単価: %.2f) を割り当てました。", order.getId(), inventory.getId(), inventory.getItemCode(), allocatedQuantity, movingAveragePrice));
-        }
-
-        double totalAllocatedPrice = order.getQuantity() * calculateMovingAverage(prices);
-        logger.info(String.format("注文 %d の合計金額: %.2f", order.getId(), totalAllocatedPrice));
-    }
-
-    /**
-     * 移動平均単価を計算する
-     *
-     * @param prices 直近の単価履歴
-     * @return 移動平均単価
-     */
-    public static double calculateMovingAverage(double[] prices) {
-        double sum = 0;
-        int count = 0;
+    private static double calculateMovingAverage(double[] prices) {
+        double sum = 0.0;
         for (double price : prices) {
-            if (price > 0) {
-                sum += price;
-                count++;
-            }
+            sum += price;
         }
-        return count > 0 ? sum / count : 0;
+        return sum / prices.length;
     }
 
     /**
@@ -245,76 +196,66 @@ public class InventoryAllocation {
      * @return 商品コードに一致する在庫情報のリスト
      */
     public static List<Inventory> getInventoriesByItemCode(List<Inventory> inventories, String itemCode) {
-        List<Inventory> itemInventories = new ArrayList<>();
-        for (Inventory inventory : inventories) {
-            if (inventory.getItemCode().equals(itemCode)) {
-                itemInventories.add(inventory);
-            }
-        }
-        return itemInventories;
+        return inventories.stream()
+                .filter(inv -> inv.getItemCode().equals(itemCode))
+                .collect(Collectors.toList());
+    }
+}
+
+class Inventory {
+    private int id;
+    private String itemCode;
+    private int quantity;
+    private double unitPrice;
+
+    public Inventory(int id, String itemCode, int quantity, double unitPrice) {
+        this.id = id;
+        this.itemCode = itemCode;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
     }
 
-    /**
-     * 在庫情報を表すクラス
-     */
-    public static class Inventory {
-        private int id;
-        private String itemCode;
-        private int quantity;
-        private double unitPrice;
-
-        public Inventory(int id, String itemCode, int quantity, double unitPrice) {
-            this.id = id;
-            this.itemCode = itemCode;
-            this.quantity = quantity;
-            this.unitPrice = unitPrice;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getItemCode() {
-            return itemCode;
-        }
-
-        public int getQuantity() {
-            return quantity;
-        }
-
-        public void setQuantity(int quantity) {
-            this.quantity = quantity;
-        }
-
-        public double getUnitPrice() {
-            return unitPrice;
-        }
+    public int getId() {
+        return id;
     }
 
-    /**
-     * 注文情報を表すクラス
-     */
-    public static class Order {
-        private int id;
-        private String itemCode;
-        private int quantity;
+    public String getItemCode() {
+        return itemCode;
+    }
 
-        public Order(int id, String itemCode, int quantity) {
-            this.id = id;
-            this.itemCode = itemCode;
-            this.quantity = quantity;
-        }
+    public int getQuantity() {
+        return quantity;
+    }
 
-        public int getId() {
-            return id;
-        }
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 
-        public String getItemCode() {
-            return itemCode;
-        }
+    public double getUnitPrice() {
+        return unitPrice;
+    }
+}
 
-        public int getQuantity() {
-            return quantity;
-        }
+class Order {
+    private int id;
+    private String itemCode;
+    private int quantity;
+
+    public Order(int id, String itemCode, int quantity) {
+        this.id = id;
+        this.itemCode = itemCode;
+        this.quantity = quantity;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getItemCode() {
+        return itemCode;
+    }
+
+    public int getQuantity() {
+        return quantity;
     }
 }
