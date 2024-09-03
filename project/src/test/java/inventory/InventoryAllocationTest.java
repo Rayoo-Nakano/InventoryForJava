@@ -1,5 +1,6 @@
-import com.example.inventory.Inventory;
-import com.example.inventory.Order;
+import inventory.Inventory;
+import inventory.Order;
+import inventory.InventoryAllocation;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
