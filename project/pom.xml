@@ -13,6 +13,8 @@
         <maven.compiler.target>11</maven.compiler.target>
         <!-- ユニットテストのログをコンソールに出力するための設定 -->
         <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
+        <!-- 依存関係のダウンロードログを抑止する設定 -->
+        <maven.slf4j.transferGlobalLoggingContext>false</maven.slf4j.transferGlobalLoggingContext>
     </properties>
 
     <dependencies>
