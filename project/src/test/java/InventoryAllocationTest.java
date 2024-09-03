@@ -1,9 +1,12 @@
+import com.example.inventory.Inventory;
+import com.example.inventory.Order;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 
 class InventoryAllocationTest {
 
