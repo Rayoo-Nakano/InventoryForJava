@@ -257,7 +257,7 @@ public class InventoryAllocation {
     /**
      * 在庫情報を表すクラス
      */
-    private static class Inventory {
+    public static class Inventory {
         private int id;
         private String itemCode;
         private int quantity;
@@ -294,7 +294,7 @@ public class InventoryAllocation {
     /**
      * 注文情報を表すクラス
      */
-    private static class Order {
+    public static class Order {
         private int id;
         private String itemCode;
         private int quantity;
