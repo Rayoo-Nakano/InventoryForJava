@@ -14,7 +14,7 @@ phases:
     commands:
       - echo "Starting Unit tests..."
       - cd project  # ディレクトリ変更コマンド
-      - dir -R # ファイル構成の確認
+      - dir # ファイル構成の確認
       - mvn test # pytest から Maven に変更
       - echo "Unit tests Completed..."
 
