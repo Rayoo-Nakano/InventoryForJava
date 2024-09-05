@@ -42,7 +42,4 @@
         </profile>
     </profiles>
 
-    <activeProfiles>
-        <activeProfile>disable-download-progress</activeProfile>
-    </activeProfiles>
 </project>
