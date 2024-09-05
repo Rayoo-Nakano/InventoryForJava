@@ -5,55 +5,67 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>sample-project</artifactId>
+    <artifactId>inventory-search</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <!-- ユニットテストのログをコンソールに出力するための設定 -->
-        <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
-        <!-- 依存関係のダウンロードログを抑止する設定 -->
-        <maven.slf4j.transferGlobalLoggingContext>false</maven.slf4j.transferGlobalLoggingContext>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
-        <!-- JUnit 5 for testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.9.2</version>
+            <version>5.8.1</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>5.6.14.Final</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Maven Surefire Plugin for running tests -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M9</version>
-                <configuration>
-                    <!-- ユニットテストのログをコンソールに出力する設定 -->
-                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
-                </configuration>
-            </plugin>
-
-            <!-- 依存関係のダウンロードログを抑止する設定 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.5.0</version>
-                <configuration>
-                    <transferListener>quiet</transferListener>
-                </configuration>
+                <version>2.22.2</version>
             </plugin>
         </plugins>
     </build>
+
+    <!-- CodeArtifactリポジトリの設定を追加 -->
+    <repositories>
+        <repository>
+            <id>codeartifact</id>
+            <url>${env.CODEARTIFACT_REPOSITORY_URL}</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <!-- CodeArtifactの認証情報を設定 -->
+    <servers>
+        <server>
+            <id>codeartifact</id>
+            <username>aws</username>
+            <password>${env.CODEARTIFACT_AUTH_TOKEN}</password>
+        </server>
+    </servers>
+
+    <profiles>
+        <profile>
+            <id>disable-download-progress</id>
+            <properties>
+                <maven.wagon.httpserver.ssl.insecure>true</maven.wagon.httpserver.ssl.insecure>
+                <maven.wagon.http.retryHandler.count>3</maven.wagon.http.retryHandler.count>
+            </properties>
+        </profile>
+    </profiles>
+
+    <activeProfiles>
+        <activeProfile>disable-download-progress</activeProfile>
+    </activeProfiles>
 </project>
