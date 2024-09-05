@@ -48,18 +48,16 @@ class InvSearchTest {
     }
 
     @Test
-    void testAddToArray() {
-        String[] original = {"Book", "Game"};
-        String[] expected = {"Book", "Game", "Toy"};
-        String[] actual = InvSearch.addToArray(original, "Toy");
+    void testSearchMultipleMatches() {
+        String[] expected = {"Book", "Toy", "Grocery", "Clothing"};
+        String[] actual = InvSearch.search("o");
         assertArrayEquals(expected, actual);
     }
 
     @Test
-    void testAddToEmptyArray() {
-        String[] original = {};
+    void testSearchSingleMatch() {
         String[] expected = {"Book"};
-        String[] actual = InvSearch.addToArray(original, "Book");
+        String[] actual = InvSearch.search("Book");
         assertArrayEquals(expected, actual);
     }
 }
