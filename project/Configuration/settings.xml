@@ -1,0 +1,31 @@
+<servers>
+    <server>
+        <id>rayoo-domain-maven_store</id>
+        <username>aws</username>
+        <password>${env.CODEARTIFACT_AUTH_TOKEN}</password>
+    </server>
+</servers>
+
+<profiles>
+  <profile>
+    <id>rayoo-domain-maven_store</id>
+    <activation>
+      <activeByDefault>true</activeByDefault>
+    </activation>
+    <repositories>
+      <repository>
+        <id>rayoo-domain-maven_store</id>
+        <url>https://rayoo-domain-047403811176.d.codeartifact.ap-northeast-1.amazonaws.com/maven/maven_store/</url>
+      </repository>
+    </repositories>
+  </profile>
+</profiles>
+
+<mirrors>
+  <mirror>
+    <id>rayoo-domain-maven_store</id>
+    <name>rayoo-domain-maven_store</name>
+    <url>https://rayoo-domain-047403811176.d.codeartifact.ap-northeast-1.amazonaws.com/maven/maven_store/</url>
+    <mirrorOf>*</mirrorOf>
+  </mirror>
+</mirrors>
