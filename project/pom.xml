@@ -32,29 +32,6 @@
         </plugins>
     </build>
 
-    <!-- CodeArtifactリポジトリの設定を追加 -->
-    <repositories>
-        <repository>
-            <id>rayoo-domain-maven_store</id>
-            <url>${env.CODEARTIFACT_REPOSITORY_URL}</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <!-- CodeArtifactの認証情報を設定 -->
-    <servers>
-        <server>
-            <id>rayoo-domain-maven_store</id>
-            <username>aws</username>
-            <password>${env.CODEARTIFACT_AUTH_TOKEN}</password>
-        </server>
-    </servers>
-
     <profiles>
         <profile>
             <id>disable-download-progress</id>
