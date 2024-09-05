@@ -12,7 +12,7 @@ phases:
       - CODEARTIFACT_REPOSITORY_URL=$(aws codeartifact get-repository-endpoint --domain rayoo-domain --repository ${CODEARTIFACT_REPOSITORY_NAME} --format maven --output text)
       - echo "Maven dependencies will be downloaded during the build phase" # ビルド時にMaven依存関係をダウンロード
       - mkdir -p ~/.m2 # .m2ディレクトリを作成
-      - cp Configuration/settings.xml ~/.m2/settings.xml # settings.xmlをコピー
+      - cp project/Configuration/settings.xml ~/.m2/settings.xml # settings.xmlをコピー
 
   # ビルド前フェーズ
   pre_build:
